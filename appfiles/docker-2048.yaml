@@ -1,0 +1,55 @@
+name: docker-2048
+
+services:
+  docker-2048:
+    # this image will be used in both build and deploy steps
+    image: alexwhen/docker-2048
+
+    type: webservice
+
+    port: 8080
+    cpu: "0.1"
+    env:
+      - name: docker-2048
+        env:
+        - name: ENV_LABEL
+          value: prod
+        - name: JAVA_OPTS
+          value: '-Xms256m -Xmx2g -XX:MaxPermSize=128m'
+        - name: _OPTS
+          value: '--spring.profiles.active=prod'
+        # 定义应用标签，logtail 为 app-demo
+        - name: aliyun_logs_app-demo_tags
+          value: 'docker-2048'
+
+    scaler:
+      replicas: 2
+
+    route:
+      domain: demo.local.com
+      issuer: tls
+      rules:
+        - path: /
+
+    metrics:
+      enabled: false
+      format: prometheus
+      path: /metrics
+      port: 0
+      scheme: http
+
+    autoscale:
+      min: 1
+      max: 4
+      cron:
+        startAt:  "15:40"
+        duration: "3m"
+        days:     "Monday, Thursday"
+        replicas: 2
+        timezone: "Asia/Shanghai"
+      cpuPercent: 10
+
+    rollout:
+      replicas: 2
+      stepWeight: 50
+      interval: "10s"
