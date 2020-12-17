@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/currycan/argocd-vela.git
-    targetRevision: master
+    targetRevision: main
     path: appfiles
     plugin:
       name: vela
